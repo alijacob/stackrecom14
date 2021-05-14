@@ -1,0 +1,60 @@
+<?php
+use Drupal\node\NodeInterface;
+use Drupal\Core\Database\Database;
+/**
+ * Implements hook_node_insert().
+ */
+
+function stackrecom14_node_insert(NodeInterface $node){
+  if($node->getType() == 'article'){
+
+    $node_id = $node->id();
+    $node_title = $node->getTitle();
+    $sidebar_title = $node->get('field_compound')[1]->value;
+    $connection = \Drupal\Core\Database\Database::getConnection();
+    
+    $values = \Drupal::database()->select('node_detail')
+                ->fields('node_detail')
+                ->condition('nid', $node_id)
+                ->execute()
+                ->fetchField();
+                                
+    $node_exists = !empty($values);
+
+    if($node_exists == FALSE){
+      $connection->insert('node_detail')        
+        ->fields(array('nid' => $node_id, 'title' => $node_title, 'side_title' => $sidebar_title))
+        ->execute();
+      \Drupal::logger('stackrecom14')->notice('inserted'); 
+        
+    } 
+  }
+}
+/**
+ * Implements hook_node_update
+ */
+function stackrecom14_node_update(Drupal\node\NodeInterface $node){
+  if($node->getType() == 'article'){
+
+    $node_id = $node->id();
+    $node_title = $node->getTitle();
+    $sidebar_title = $node->get('field_compound')[1]->value;
+    $connection = \Drupal\Core\Database\Database::getConnection();
+    
+    $values = \Drupal::database()->select('node_detail')
+                ->fields('node_detail')
+                ->condition('nid', $node_id)
+                ->execute()
+                ->fetchField();
+                                
+    $node_exists = !empty($values);
+
+    if ($node_exists){
+      $connection->update('node_detail')
+        ->condition('nid', $node_id)      
+        ->values(array('title' => $node_title, 'side_title' => $sidebar_title))
+        ->execute();
+        \Drupal::logger('stackrecom14')->notice('updated'); 
+    }
+  }
+}
