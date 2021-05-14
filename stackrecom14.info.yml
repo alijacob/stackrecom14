@@ -1,0 +1,5 @@
+name: stackrecom14
+type: module
+description: This module is for testing hook_node_insert testing(minimal example) provided for stackoverflow
+package: Stack Recommendation
+core_version_requirement: ^9
