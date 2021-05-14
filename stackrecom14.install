@@ -1,0 +1,65 @@
+<?php
+# stackrecom will be php function, the install file will be inside the fields module
+#
+/**
+ *
+ *Implements hook_schema()
+ */
+ function stackrecom14_schema(){
+    #  //checking if table exists
+     $connection = \Drupal::service('database');
+     $schema = $connection->schema();
+    #  
+    if(!($schema->tableExists('node_detail'))){ /*table name renamed from cards to node_detail*/
+       $schema = array();       
+       $schema['node_detail'] = array(
+          'description' => 'Cards table',
+          'primary key' => ['id'],
+          'fields' => [
+             'id' => [
+                'type' => 'serial',
+                'not null' => TRUE,
+                'description' => 'Primary Key: Unique Cards ID',
+             ],
+             'nid' => [
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 1,
+                'size' => 'medium',
+                'unsigned' => TRUE,
+                'description' => 'Node ID added, this will help for merging and deleting',
+             ],
+             'title' => [
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => '',
+                'description' => 'Title',
+             ],
+             'side_title' => [ /*renamed from sidebar_title to side_title*/
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => '',
+                'description' => 'Title',
+             ],
+          ],
+
+       );       
+
+       return $schema;
+    } else {
+       \Drupal::logger('stackrecom14')->notice('Table Exists, tables not created');
+    }
+ }
+
+ function stackrecom14_uninstall() {
+    $connection = \Drupal::service('database');
+    $schema = $connection->schema();
+
+    if($schema->tableExists('node_detail')){
+       $schema->dropTable(''); //will be blank to not remove any table
+
+       \Drupal::logger('stackrecom14')->notice('node_detail table is not deleted');
+    }
+ }
