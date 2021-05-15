@@ -1,6 +1,6 @@
 <?php
 use Drupal\node\NodeInterface;
-use Drupal\Core\Database\Database;
+//use Drupal\Core\Database\Database;
 /**
  * Implements hook_node_insert().
  */
@@ -10,8 +10,11 @@ function stackrecom14_node_insert(NodeInterface $node){
 
     $node_id = $node->id();
     $node_title = $node->getTitle();
-    $sidebar_title = $node->get('field_compound')[1]->value;
-    $connection = \Drupal\Core\Database\Database::getConnection();
+    // $sidebar_title = $node->get('field_compound')[1]->value;
+    // $sidebar_title = $node->get('field_compound')[1]->sidebar_title;
+    // $sidebar_title = $node->get('field_compound')[1]['sidebar_title'];
+    //$connection = \Drupal\Core\Database\Database::getConnection(); 
+    //All the above variations of compound_value was queried, but the value was not obtained
     
     $values = \Drupal::database()->select('node_detail')
                 ->fields('node_detail')
@@ -22,8 +25,10 @@ function stackrecom14_node_insert(NodeInterface $node){
     $node_exists = !empty($values);
 
     if($node_exists == FALSE){
-      $connection->insert('node_detail')        
-        ->fields(array('nid' => $node_id, 'title' => $node_title, 'side_title' => $sidebar_title))
+      \Drupal::service('database')->insert('node_detail')
+        ->fields(array('nid' => $node_id, 'title' => $node_title
+        // , 'side_title' => $sidebar_title
+        ))
         ->execute();
       \Drupal::logger('stackrecom14')->notice('inserted'); 
         
@@ -38,8 +43,8 @@ function stackrecom14_node_update(Drupal\node\NodeInterface $node){
 
     $node_id = $node->id();
     $node_title = $node->getTitle();
-    $sidebar_title = $node->get('field_compound')[1]->value;
-    $connection = \Drupal\Core\Database\Database::getConnection();
+    // $sidebar_title = $node->get('field_compound')[1]->value;
+    // $connection = \Drupal\Core\Database\Database::getConnection();
     
     $values = \Drupal::database()->select('node_detail')
                 ->fields('node_detail')
@@ -50,9 +55,16 @@ function stackrecom14_node_update(Drupal\node\NodeInterface $node){
     $node_exists = !empty($values);
 
     if ($node_exists){
-      $connection->update('node_detail')
-        ->condition('nid', $node_id)      
-        ->values(array('title' => $node_title, 'side_title' => $sidebar_title))
+      // $connection->update('node_detail')   
+      \Drupal::service('database')->update('node_detail')      
+        ->fields(array('title' => $node_title))
+        ->condition('nid', $node_id)
+        ->execute();
+        \Drupal::logger('stackrecom14')->notice('updated'); 
+    } elseif($node_exists == FALSE){
+      \Drupal::service('database')->update('node_detail')      
+        ->fields(array('title' => $node_title))
+        ->condition('nid', $node_id)
         ->execute();
         \Drupal::logger('stackrecom14')->notice('updated'); 
     }
